@@ -48,6 +48,8 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
                 self._download_file(self.en_us_url, self.model_path)
                 self._download_file(self.ru_ru_url, self.model_path)
 
+        model_dirs = os.listdir(model_path)
+
         for model in model_dirs:
             full_dst = model_path + model
             if os.path.isdir(full_dst):
