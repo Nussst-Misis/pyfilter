@@ -1,11 +1,7 @@
 import wave
-from models import AudioDetection
+from .models import AudioDetection
 from typing import List
 from scipy.io import wavfile
-
-constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
-constWavFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
-constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.wav"
 
 
 def reverseInterval(arr, start: int, end: int, fps: int, total: int):
@@ -33,10 +29,13 @@ def CensorAudio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
     wavfile.write(outFile, fs, data)
 
 
-tf1 = AudioDetection(time_start=0, time_end=5000)
-tf2 = AudioDetection(time_start=7000, time_end=10000)
-
 if __name__ == "__main__":
-    #extractWav(constVideoFile, constWavFile)
-    constWavFile = "/home/vlasov/folder/pyfilter/audio_censor/chan2.wav"
+
+    tf1 = AudioDetection(time_start=0, time_end=5000)
+    tf2 = AudioDetection(time_start=7000, time_end=10000)
+
+    constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+    constWavFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
+    constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.wav"
+
     CensorAudio(constWavFile, constOutputFile, [tf1, tf2])

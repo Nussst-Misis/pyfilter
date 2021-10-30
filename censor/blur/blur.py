@@ -1,27 +1,14 @@
 import cv2
 from typing import List
-from numpy.core.fromnumeric import sort
-from numpy.lib.function_base import append
 from pydantic import BaseModel
 import numpy as np
-from models import VideoDetection
-
-constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
-constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
+from .models import VideoDetection
 
 
 class TimeframeSegments(BaseModel):
     time_start: np.float64
     time_end: np.float64
     segments: List[List[int]]
-
-
-seg1 = VideoDetection(time_start=0, time_end=3000, corner_1=[
-    590, 730], corner_2=[730, 570])
-seg2 = VideoDetection(time_start=0, time_end=23000, corner_1=[
-    1090, 630], corner_2=[1630, 170])
-seg3 = VideoDetection(time_start=20000, time_end=25000, corner_1=[
-    1290, 730], corner_2=[1730, 370])
 
 
 def simple_blur(image: np.ndarray, factor=3.0) -> np.ndarray:
@@ -144,5 +131,16 @@ def BlurVideo(cap, outputFile, segments: List[VideoDetection]):
 
 
 if __name__ == "__main__":
+
+    seg1 = VideoDetection(time_start=0, time_end=3000, corner_1=[
+        590, 730], corner_2=[730, 570])
+    seg2 = VideoDetection(time_start=0, time_end=23000, corner_1=[
+        1090, 630], corner_2=[1630, 170])
+    seg3 = VideoDetection(time_start=20000, time_end=25000, corner_1=[
+        1290, 730], corner_2=[1730, 370])
+
+    constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+    constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
     cap = cv2.VideoCapture(constVideoFile)
+
     BlurVideo(cap, constOutputFile, [seg1, seg2, seg3])
