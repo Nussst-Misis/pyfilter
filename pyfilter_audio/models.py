@@ -16,15 +16,6 @@ class VideoDetection(BaseModel):
     corner_2: tuple[int, int]
 
 
-class VideoResult(BaseModel):
-    result: list[VideoDetection]
-
-
 class AudioResult(BaseModel):
     result: list[AudioDetection]
 
-
-class RecognitionResult(BaseModel):
-    audio: AudioResult
-    video: VideoResult
-    result_file_: BytesIO

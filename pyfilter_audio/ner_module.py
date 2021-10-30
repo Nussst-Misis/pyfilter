@@ -77,7 +77,7 @@ class ProcessText:
         output_data = list()
         for data in fi:
             data = data.as_json
-            output_data.append({data["start"], data["stop"], data["text"]})
+            output_data.append(data["text"])
 
         return output_data
 
