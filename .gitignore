@@ -1,4 +1,8 @@
 venv/**
 .idea
 __pycache__
-include/**
+
+include/portaudio
+include/PyAudio-0.2.11/**
+
+*.mp4

@@ -2,8 +2,8 @@ import sys
 import wave
 import pyaudio
 
-constVideoFile = "D:\Papka\work\sberzvuk\hackathon_part_1.mp4"
-constOutputFile = "D:\Papqka\work\sberzvuk\hackathon_part_1_out_auio.avi"
+constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
 
 
 CHUNK = 1024

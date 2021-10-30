@@ -6,8 +6,8 @@ from pydantic import BaseModel
 import numpy as np
 from models import VideoDetection
 
-constVideoFile = "D:\Papka\work\sberzvuk\hackathon_part_1.mp4"
-constOutputFile = "D:\Papqka\work\sberzvuk\hackathon_part_1_out.avi"
+constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
 
 
 class TimeframeSegments(BaseModel):
