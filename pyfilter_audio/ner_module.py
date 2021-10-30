@@ -31,10 +31,10 @@ def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
 
 @logger.catch
 def extractDataFromFSM(
-    filename: str = os.getcwd() +
-    "/.data/celebrities.txt",
-    celebrities: str = os.getcwd() +
-        "/.data/celebrities.json"):
+        filename: str = os.getcwd() +
+                        "/.data/celebrities.txt",
+        celebrities: str = os.getcwd() +
+                           "/.data/celebrities.json"):
     all_data = dict()
 
     all_data['names'] = list()
@@ -75,8 +75,9 @@ def extractDataFromFSM(
                 all_data['names'].append(fact.as_json)
 
     for sentence in fsm:
-        __process(sentence.split()[-1])
-        __process(sentence)
+        if len(sentence) > 2:
+            __process(sentence.split()[-1])
+            __process(sentence)
     return all_data
 
 
@@ -92,7 +93,8 @@ class ProcessText:
     def __init__(
             self,
             celebrities: str = os.getcwd() +
-            "/.data/celebrities.json"):
+                               "/.data/celebrities.json"):
+
         self.celebrities = json.load(open(celebrities, 'r'))
         self.segmenter = Segmenter()
         self.morph_vocab = MorphVocab()
@@ -142,7 +144,7 @@ class ProcessText:
                 for name in forbidden_info:
                     if isinstance(
                             fact, str) and isinstance(
-                            name, str) and fact not in name:
+                        name, str) and fact not in name:
                         continue
                     if fact in name.as_json["text"]:
                         already_in = True
@@ -170,12 +172,11 @@ class ProcessText:
 
 
 if __name__ == '__main__':
-    # prepare_data(os.getcwd() + "/.data/celebrities.json<")
+    prepare_data(os.getcwd() + "/.data/celebrities.json")
     pt = ProcessText()
     logger.info("Starting finding persons in selected text:")
 
-    text = "Неужели, это же Алан Алда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
+    text = "Неужели, это же Алан Альда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
     logger.info(text)
     logger.info(pt(text))
     logger.info(pt(' '.join(elem.capitalize() for elem in text.split())))
-

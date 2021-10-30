@@ -33,6 +33,9 @@ class AudioProcess:
                             result = models.AudioDetection
                             result.time_start = word.get("start")
                             result.time_end = word.get("end")
+
+                            logger.debug(f"Forbidden word is {word.get('word')}")
+
                             audio_list.append(result)
         audio_result.result = audio_list
 

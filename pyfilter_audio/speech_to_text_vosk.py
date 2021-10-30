@@ -15,10 +15,7 @@ SetLogLevel(-1)
 
 
 class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
-    en_us_url = "http://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"
     ru_ru_url = "https://alphacephei.com/vosk/models/vosk-model-ru-0.10.zip"
-
-    en_us_small_url = "http://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
     ru_ru_small_url = "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip"
 
     @logger.catch
@@ -41,11 +38,9 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
             logger.info(f"Trying to download in {model_path}")
             if small_model_mode:
                 logger.info("Trying to download small models")
-                self._download_file(self.en_us_small_url, self.model_path)
                 self._download_file(self.ru_ru_small_url, self.model_path)
             else:
                 logger.info("Trying to download large models")
-                self._download_file(self.en_us_url, self.model_path)
                 self._download_file(self.ru_ru_url, self.model_path)
 
         model_dirs = os.listdir(model_path)
