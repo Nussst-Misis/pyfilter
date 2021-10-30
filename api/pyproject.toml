@@ -12,6 +12,7 @@ aiohttp = "^3.7.4"
 aioredis = "^2.0.0"
 tenacity = "^8.0.1"
 aio-pika = "^6.8.0"
+uvicorn = "^0.15.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"

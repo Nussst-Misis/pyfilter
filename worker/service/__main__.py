@@ -1,4 +1,4 @@
-from tenacity import retry, RetryCallState
+from tenacity import retry, RetryCallState, wait_fixed
 from loguru import logger
 from contextlib import AsyncExitStack
 from aiohttp import ClientSession, ClientResponse
@@ -19,7 +19,7 @@ def after_log(retry_state: RetryCallState):
     logger.error(retry_state)
 
 
-@retry(wait=5)
+@retry(wait=wait_fixed(5))
 async def get_rabbit_connection() -> aio_pika.RobustConnection:
     return await aio_pika.connect_robust(settings.rabbitmq_url)
 
@@ -46,18 +46,19 @@ async def download_content(url: str) -> bytes:
 async def main():
     async with AsyncExitStack() as stack:
         session = get_boto_session()
-        rabbit = await stack.enter_async_context(get_rabbit_connection())
-        redis = await stack.enter_async_context(get_redis_connection())
+        rabbit = await stack.enter_async_context(await get_rabbit_connection())
+        redis = await stack.enter_async_context(await get_redis_connection())
         s3client = await stack.enter_async_context(session.client("s3", endpoint_url=settings.aws_endpoint))
         await worker(s3client, rabbit, redis)
 
 
-@retry(wait=5, after=after_log)
+@retry(wait=wait_fixed(5), after=after_log)
 async def worker(s3client, rabbit, redis):
     channel = await rabbit.channel()
     queue = await channel.declare_queue("process_video")
 
     async with queue.iterator() as queue_iter:
+        logger.info("Consuming incoming messages.")
         async for message in queue_iter:
             message: aio_pika.IncomingMessage
             task, video, audio, result = await process_message(message)
@@ -74,17 +75,21 @@ async def worker(s3client, rabbit, redis):
                 result, settings.aws_bucket, f"{task.message.prefix}_result.mp4"
             )
 
+            logger.info(f"Task '{task.task_id}' completed.")
+
             await redis.set(f"task.{task.task_id}", 1)
 
 
 async def process_message(message) -> tuple[Task, VideoResult, AudioResult, BytesIO]:
     async with message.process():
         task = Task(**json.loads(message.body))
+        logger.info(f"Processing task '{task.task_id}'")
         content = await download_content(task.message.source)
         video, audio, result = process_video(content)
         return task, video, audio, result
 
 
 if __name__ == '__main__':
+    logger.info("Starting worker.")
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

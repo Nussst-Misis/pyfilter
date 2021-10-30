@@ -33,11 +33,11 @@ class StatusResponse(BaseModel):
 
 
 def depends_redis(request: Request) -> Redis:
-    return request.state.redis
+    return request.app.state.redis
 
 
 def depends_rabbit(request: Request) -> RobustConnection:
-    return request.state.rabbit
+    return request.app.state.rabbit
 
 
 @router.post("/recognize", response_model=RecognizeResponse)
@@ -70,8 +70,12 @@ async def recognize(
 
 
 @router.get("/task_status", response_model=StatusResponse)
-async def task_status(task_id: int, redis: Redis = Depends(depends_redis)):
+async def task_status(task_id: str, redis: Redis = Depends(depends_redis)):
     status = await redis.get(f"task.{task_id}")
+    if status is None:
+        raise HTTPException(detail="Task expired or does not exists.", status_code=400)
+
+    status = int(status)
     if status == TaskStatus.PROCESSING:
         return StatusResponse(
             status=status,
@@ -83,4 +87,7 @@ async def task_status(task_id: int, redis: Redis = Depends(depends_redis)):
             detail="Completed."
         )
     else:
-        raise HTTPException(detail="Task expired or does not exists.", status_code=400)
+        raise HTTPException(
+            detail="Invalid status code.",
+            status_code=500
+        )

@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: api/
+      dockerfile: Dockerfile
+
+    environment:
+      rabbitmq_url: "amqp://root:T7b9eEHLpxqLnAdb@rabbit:5672/%2F"
+      redis_url: "redis://redis:6379/0"
+
+    ports:
+      - 80:80
+
+    depends_on:
+      - rabbit
+      - redis
+
+  worker:
+    build:
+      context: worker/
+      dockerfile: Dockerfile
+
+    environment:
+      aws_access_key_id: "KXRGKWSQSRL2OYBBE5JJ"
+      aws_secret_access_key: "isa90HNUFuQpZHsHrboW6VazdzI5rFECx3ZhYHjY"
+      aws_bucket: "hackathon-ecs-12"
+      aws_endpoint: "http://obs.ru-moscow-1.hc.sbercloud.ru"
+      rabbitmq_url: "amqp://root:T7b9eEHLpxqLnAdb@rabbit:5672/%2F"
+      redis_url: "redis://redis:6379/0"
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - 6379
+
+  rabbit:
+    image: rabbitmq:3.8.2
+
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: T7b9eEHLpxqLnAdb
+
+    ports:
+      - 5672

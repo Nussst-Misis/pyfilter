@@ -1,4 +1,4 @@
-from tenacity import retry, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, wait_fixed
 
 from .config import settings
 from .main import app
@@ -13,7 +13,7 @@ async def init_redis():
 
 
 @app.on_event("startup")
-@retry(retry_if_exception_type(ConnectionError), wait=2)
+@retry(retry=retry_if_exception_type(ConnectionError), wait=wait_fixed(2))
 async def init_rabbit():
     app.state.rabbit = await aio_pika.connect_robust(settings.rabbitmq_url)
 

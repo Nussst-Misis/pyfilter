@@ -7,7 +7,7 @@ class TaskMessage(BaseModel):
 
 
 class Task(BaseModel):
-    task_id: int
+    task_id: str
     message: TaskMessage
 
 
