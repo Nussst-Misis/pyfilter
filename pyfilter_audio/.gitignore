@@ -1,0 +1,4 @@
+blur/venv/**
+.idea
+.audio
+.models
