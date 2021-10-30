@@ -32,9 +32,9 @@ def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
 @logger.catch
 def extractDataFromFSM(
         filename: str = os.getcwd() +
-                        "/.data/celebrities.txt",
+    "/.data/celebrities.txt",
         celebrities: str = os.getcwd() +
-                           "/.data/celebrities.json"):
+        "/.data/celebrities.json"):
     all_data = dict()
 
     all_data['names'] = list()
@@ -91,9 +91,9 @@ def prepare_data(celebrities: str):
 class ProcessText:
     @logger.catch
     def __init__(
-            self,
-            celebrities: str = os.getcwd() +
-                               "/.data/celebrities.json"):
+        self,
+        celebrities: str = os.getcwd() +
+            "/.data/celebrities.json"):
 
         self.celebrities = json.load(open(celebrities, 'r'))
         self.segmenter = Segmenter()
@@ -143,8 +143,8 @@ class ProcessText:
                 already_in = False
                 for name in forbidden_info:
                     if isinstance(
-                            fact, str) and isinstance(
-                        name, str) and fact not in name:
+                        fact, str) and isinstance(
+                            name, str) and fact not in name:
                         continue
                     if fact in name.as_json["text"]:
                         already_in = True
