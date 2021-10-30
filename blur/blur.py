@@ -4,16 +4,10 @@ from numpy.core.fromnumeric import sort
 from numpy.lib.function_base import append
 from pydantic import BaseModel
 import numpy as np
+from models import VideoDetection
 
 constVideoFile = "D:\Papka\work\sberzvuk\hackathon_part_1.mp4"
-constOutputFile = "D:\Papka\work\sberzvuk\hackathon_part_1_out.avi"
-
-
-class Segment(BaseModel):
-    time_start: np.float64
-    time_end: np.float64
-    corner_1: List[int]
-    corner_2: List[int]
+constOutputFile = "D:\Papqka\work\sberzvuk\hackathon_part_1_out.avi"
 
 
 class TimeframeSegments(BaseModel):
@@ -22,11 +16,11 @@ class TimeframeSegments(BaseModel):
     segments: List[List[int]]
 
 
-seg1 = Segment(time_start=0, time_end=3000, corner_1=[
+seg1 = VideoDetection(time_start=0, time_end=3000, corner_1=[
     590, 730], corner_2=[730, 570])
-seg2 = Segment(time_start=0, time_end=23000, corner_1=[
+seg2 = VideoDetection(time_start=0, time_end=23000, corner_1=[
     1090, 630], corner_2=[1630, 170])
-seg3 = Segment(time_start=20000, time_end=25000, corner_1=[
+seg3 = VideoDetection(time_start=20000, time_end=25000, corner_1=[
     1290, 730], corner_2=[1730, 370])
 
 
@@ -47,7 +41,7 @@ def simple_blur(image: np.ndarray, factor=3.0) -> np.ndarray:
     return cv2.GaussianBlur(image, (kW, kH), 0)
 
 
-def cropSegmentToFit(segment: List[int], img: np.ndarray):
+def cropVideoDetectionToFit(segment: List[int], img: np.ndarray):
     for point in segment:
         if point[0] < 0:
             point[0] = 0
@@ -59,9 +53,9 @@ def cropSegmentToFit(segment: List[int], img: np.ndarray):
             point[1] = img.shape[0]-1
 
 
-def blurImageSegment(img: np.ndarray, segments: List[List[int]]):
+def blurImageVideoDetection(img: np.ndarray, segments: List[List[int]]):
     for seg in segments:
-        cropSegmentToFit(seg, img)
+        cropVideoDetectionToFit(seg, img)
         roi = img[seg[1][1]:seg[0]
                   [1], seg[0][0]:seg[1][0]]
         if roi.shape[0] == 0 or roi.shape[1] == 0:
@@ -71,7 +65,7 @@ def blurImageSegment(img: np.ndarray, segments: List[List[int]]):
                   [1], seg[0][0]:seg[1][0]] = blurred
 
 
-def mergeSegments(segments: List[Segment]) -> List[TimeframeSegments]:
+def mergeVideoDetections(segments: List[VideoDetection]) -> List[TimeframeSegments]:
     timeline = np.zeros(len(segments)*2)
     for i in range(len(segments)):
         timeline[i*2] = segments[i].time_start
@@ -122,7 +116,7 @@ def blurVideo(cap, timeframes: List[TimeframeSegments], out):
             cur += mod_start-cur
 
         transferNFrames(cap, out, mod_end-cur,
-                        lambda frame: blurImageSegment(frame, timeframe.segments))
+                        lambda frame: blurImageVideoDetection(frame, timeframe.segments))
         cur += mod_end-cur
 
     transferNFrames(cap, out, total-cur)
@@ -137,13 +131,13 @@ def createVideoWriter(cap, outFilename: str):
         outFilename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
 
 
-def BlurVideo(cap, outputFile, segments: List[Segment]):
+def BlurVideo(cap, outputFile, segments: List[VideoDetection]):
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
         raise
 
     out = createVideoWriter(cap, outputFile)
-    segments = mergeSegments([seg1, seg2, seg3])
+    segments = mergeVideoDetections([seg1, seg2, seg3])
     blurVideo(cap, segments, out)
     out.release()
     cap.release()

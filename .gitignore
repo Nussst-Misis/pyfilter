@@ -1,2 +1,4 @@
-blur/venv/**
+venv/**
 .idea
+__pycache__
+include/**
