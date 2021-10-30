@@ -22,7 +22,10 @@ from natasha import (
 
 class ProcessText:
     @logger.catch
-    def __init__(self, celebrities: str = os.getcwd() + "/.data/celebrities.json"):
+    def __init__(
+            self,
+            celebrities: str = os.getcwd() +
+            "/.data/celebrities.json"):
         self.celebrities = json.load(open(celebrities, 'r'))
 
         self.segmenter = Segmenter()
@@ -62,7 +65,8 @@ class ProcessText:
         for fact in doc.spans:
             found = False
             if fact.type == PER:
-                found, info = ProcessText.search(self.celebrities, fact.as_json, 'names')
+                found, info = ProcessText.search(
+                    self.celebrities, fact.as_json, 'names')
             if found is True:
                 forbidden_info.append(fact)
 
@@ -92,8 +96,11 @@ def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
 
 
 @logger.catch
-def extractDataFromFSM(filename: str = os.getcwd() + "/.data/celebrities.txt",
-                       celebrities: str = os.getcwd() + "/.data/celebrities.json"):
+def extractDataFromFSM(
+    filename: str = os.getcwd() +
+    "/.data/celebrities.txt",
+    celebrities: str = os.getcwd() +
+        "/.data/celebrities.json"):
     all_data = dict()
 
     all_data['names'] = list()
