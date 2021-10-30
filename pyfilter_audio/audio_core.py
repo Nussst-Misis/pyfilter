@@ -9,12 +9,14 @@ from loguru import logger
 
 
 class AudioProcess:
-    def __init__(self,
-                 speech_to_text_module: speech_to_text_core.SpeechToText = speech_to_text_vosk.VoskSpeechToText()):
+    def __init__(
+            self,
+            speech_to_text_module: speech_to_text_core.SpeechToText = speech_to_text_vosk.VoskSpeechToText()):
         self.ner_module = ner_module.ProcessText()
         self.speech_text = speech_to_text_module
 
-    def __call__(self, audio_url: str, *args, **kwargs) -> [models.AudioResult]:
+    def __call__(self, audio_url: str, *args, **
+                 kwargs) -> [models.AudioResult]:
         audio_result = models.AudioResult
         audio_list = list()
 
@@ -40,4 +42,5 @@ class AudioProcess:
 if __name__ == "__main__":
     ap = AudioProcess()
     logger.info("String processing 3 minutes of video")
-    logger.info(ap("file:///home/ristle/Programming/speech-to-text/fr/audio/my_result.wav").result)
+    logger.info(
+        ap("file:///home/ristle/Programming/speech-to-text/fr/audio/my_result.wav").result)
