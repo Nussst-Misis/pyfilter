@@ -1,0 +1,7 @@
+wave
+pyaudio
+loguru
+vosk
+natasha
+pydantic
+pathlib

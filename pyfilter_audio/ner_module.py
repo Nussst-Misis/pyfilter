@@ -20,72 +20,6 @@ from natasha import (
 )
 
 
-class ProcessText:
-    @logger.catch
-    def __init__(
-            self,
-            celebrities: str = os.getcwd() +
-            "/.data/celebrities.json"):
-        self.celebrities = json.load(open(celebrities, 'r'))
-
-        self.segmenter = Segmenter()
-        self.morph_vocab = MorphVocab()
-
-        self.emb = NewsEmbedding()
-        self.ner_tagger = NewsNERTagger(self.emb)
-        self.morph_tagger = NewsMorphTagger(self.emb)
-        self.syntax_parser = NewsSyntaxParser(self.emb)
-        self.names_extractor = NamesExtractor(self.morph_vocab)
-
-    @staticmethod
-    @logger.catch
-    def search(ner, data, type: str) -> tuple:
-        for info in ner[type]:
-            if info["normal"] == data["normal"]:
-                return True, info["normal"]
-        return False, {}
-
-    @logger.catch
-    def __extract_data(self, text: str):
-        doc = Doc(text)
-        doc.segment(Segmenter())
-        doc.tag_morph(self.morph_tagger)
-
-        for token in doc.tokens:
-            token.lemmatize(self.morph_vocab)
-
-        doc.parse_syntax(self.syntax_parser)
-        doc.tag_ner(self.ner_tagger)
-
-        for span in doc.spans:
-            span.normalize(self.morph_vocab)
-
-        forbidden_info = list()
-
-        for fact in doc.spans:
-            found = False
-            if fact.type == PER:
-                found, info = ProcessText.search(
-                    self.celebrities, fact.as_json, 'names')
-            if found is True:
-                forbidden_info.append(fact)
-
-        return forbidden_info
-
-    @logger.catch
-    def __call__(self, text: str):
-        fi = self.__extract_data(text)
-        if fi == list():
-            return list()
-
-        output_data = list()
-        for data in fi:
-            data = data.as_json
-            output_data.append({data["start"], data["stop"], data["text"]})
-
-        return output_data
-
-
 @logger.catch
 def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
     with open(filename, encoding="utf-16") as file:
@@ -120,8 +54,8 @@ def extractDataFromFSM(
 
     fsm = getFSM(filename)
 
-    for sentence in fsm:
-        doc = Doc(sentence)
+    def __process(word: str):
+        doc = Doc(word)
         doc.segment(segmenter)
         doc.tag_morph(morph_tagger)
 
@@ -140,16 +74,108 @@ def extractDataFromFSM(
             if fact.type == PER:
                 all_data['names'].append(fact.as_json)
 
+    for sentence in fsm:
+        __process(sentence.split()[-1])
+        __process(sentence)
     return all_data
 
 
-if __name__ == '__main__':
-    # prepared_data = extractDataFromFSM()
-    #
-    # with open(os.getcwd() + "/.data/celebrities.json", 'w') as f:
-    #     json.dump(prepared_data, f, ensure_ascii=False, indent=4)
+def prepare_data(celebrities: str):
+    prepared_data = extractDataFromFSM()
 
+    with open(celebrities, 'w') as f:
+        json.dump(prepared_data, f, ensure_ascii=False, indent=4)
+
+
+class ProcessText:
+    @logger.catch
+    def __init__(
+            self,
+            celebrities: str = os.getcwd() +
+            "/.data/celebrities.json"):
+        self.celebrities = json.load(open(celebrities, 'r'))
+        self.segmenter = Segmenter()
+        self.morph_vocab = MorphVocab()
+
+        self.emb = NewsEmbedding()
+        self.ner_tagger = NewsNERTagger(self.emb)
+        self.morph_tagger = NewsMorphTagger(self.emb)
+        self.syntax_parser = NewsSyntaxParser(self.emb)
+        self.names_extractor = NamesExtractor(self.morph_vocab)
+
+    @staticmethod
+    @logger.catch
+    def search(ner, data, type: str) -> tuple:
+        for info in ner[type]:
+            if info["normal"].lower() == data["normal"].lower():
+                return True, info["normal"]
+        return False, {}
+
+    @logger.catch
+    def __extract_data(self, text: str):
+        doc = Doc(text)
+        doc.segment(Segmenter())
+        doc.tag_morph(self.morph_tagger)
+
+        for token in doc.tokens:
+            token.lemmatize(self.morph_vocab)
+
+        doc.parse_syntax(self.syntax_parser)
+        doc.tag_ner(self.ner_tagger)
+
+        for span in doc.spans:
+            span.normalize(self.morph_vocab)
+
+        forbidden_info = list()
+
+        for fact in doc.spans:
+            found, info = ProcessText.search(
+                self.celebrities, fact.as_json, 'names')
+            if found is True:
+                forbidden_info.append(fact)
+
+        for fact in text.split():
+            found, info = ProcessText.search(
+                self.celebrities, {"normal": fact}, 'names')
+            if found is True and fact not in forbidden_info:
+                already_in = False
+                for name in forbidden_info:
+                    if isinstance(
+                            fact, str) and isinstance(
+                            name, str) and fact not in name:
+                        continue
+                    if fact in name.as_json["text"]:
+                        already_in = True
+                        break
+                if not already_in:
+                    forbidden_info.append(fact)
+
+        return forbidden_info
+
+    @logger.catch
+    def __call__(self, text: str):
+        fi = self.__extract_data(text)
+        if fi == list():
+            return list()
+
+        output_data = list()
+        for data in fi:
+            if isinstance(data, str):
+                output_data.append(data)
+            else:
+                data = data.as_json
+                output_data.append(data["text"])
+
+        return output_data
+
+
+if __name__ == '__main__':
+    # prepare_data(os.getcwd() + "/.data/celebrities.json<")
     pt = ProcessText()
     logger.info("Starting finding persons in selected text:")
-    logger.info(f"\t Привет, это же Алан Алда!")
-    logger.info(pt("Привет, это же Алан Алда!"))
+
+    text = "Неужели, это же Алан Алда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
+    logger.info(text)
+    logger.info(pt(text))
+    logger.info(pt(' '.join(elem.capitalize() for elem in text.split())))
+

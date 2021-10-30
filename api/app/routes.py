@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
-from aiohttp import ClientSession, ClientResponse
 from pydantic import BaseModel
-from io import BytesIO
+from aio_pika import RobustConnection, Message
+from aioredis.client import Redis
+from enum import IntEnum
 
+from .config import PROCESSING_TIMEOUT
 
-from .processing import process, RecognitionResult
-from .config import settings
-
-import asyncio
+import json
+import uuid
 
 router = APIRouter()
 
@@ -19,43 +19,77 @@ class RecognizeRequest(BaseModel):
 
 class RecognizeResponse(BaseModel):
     code: str
-    message: str
+    message: dict
 
 
-async def depends_s3(request: Request):
-    async with request.state.aws_session.client("s3") as client:
-        yield client
+class TaskStatus(IntEnum):
+    PROCESSING = 0
+    COMPLETED = 1
+
+
+class StatusResponse(BaseModel):
+    status: TaskStatus
+    detail: str
+
+
+def depends_redis(request: Request) -> Redis:
+    return request.app.state.redis
+
+
+def depends_rabbit(request: Request) -> RobustConnection:
+    return request.app.state.rabbit
 
 
 @router.post("/recognize", response_model=RecognizeResponse)
 async def recognize(
-    data: RecognizeRequest, request: Request, s3client=Depends(depends_s3)
+        data: RecognizeRequest,
+        redis: Redis = Depends(depends_redis),
+        rabbit: RobustConnection = Depends(depends_rabbit)
 ):
-    async with ClientSession() as session:
-        async with session.get(data.source) as response:  # type: ClientResponse
-            if response.status != 200:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Unable to download video")
-            content = await response.read()
+    task_id = str(uuid.uuid4())
+    channel = await rabbit.channel()
 
-    loop = asyncio.get_running_loop()
-    result: RecognitionResult = await loop.run_in_executor(
-        request.state.executor, process, content
+    await channel.declare_queue("process_video")
+    await channel.default_exchange.publish(
+        Message(
+            body=json.dumps(
+                {
+                    "task_id": task_id,
+                    "message": data.dict()
+                }
+            ).encode("utf-8"),
+            expiration=PROCESSING_TIMEOUT
+        ),
+        routing_key="process_video",
     )
 
-    audio = BytesIO(result.audio.json().encode("utf-8"))
-    video = BytesIO(result.video.json().encode("utf-8"))
-    result.result_file.seek(0)
+    await redis.set(f"task.{task_id}", 0)
+    await redis.expire(f"task.{task_id}", PROCESSING_TIMEOUT)
 
-    await s3client.upload_fileobj(
-        audio, settings.aws_bucket, f"{data.prefix}_audio.json"
-    )
-    await s3client.upload_fileobj(
-        video, settings.aws_bucket, f"{data.prefix}_video.json"
-    )
-    await s3client.upload_fileobj(
-        result.result_file, settings.aws_bucket, f"{data.prefix}_result.mp4"
-    )
+    return RecognizeResponse(code="ok", message={"task_id": task_id})
 
-    return RecognizeResponse(code="ok", message="Processing complete")
+
+@router.get("/task_status", response_model=StatusResponse)
+async def task_status(task_id: str, redis: Redis = Depends(depends_redis)):
+    status = await redis.get(f"task.{task_id}")
+    if status is None:
+        raise HTTPException(
+            detail="Task expired or does not exists.",
+            status_code=400)
+
+    status = int(status)
+    if status == TaskStatus.PROCESSING:
+        return StatusResponse(
+            status=status,
+            detail="In progress."
+        )
+    elif status == TaskStatus.COMPLETED:
+        return StatusResponse(
+            status=status,
+            detail="Completed."
+        )
+    else:
+        raise HTTPException(
+            detail="Invalid status code.",
+            status_code=500
+        )
