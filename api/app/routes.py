@@ -36,7 +36,9 @@ async def recognize(
     async with ClientSession() as session:
         async with session.get(data.source) as response:  # type: ClientResponse
             if response.status != 200:
-                raise HTTPException(status_code=400, detail="Unable to download video")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Unable to download video")
             content = await response.read()
 
     loop = asyncio.get_running_loop()
