@@ -1,0 +1,10 @@
+1. install https://github.com/PortAudio/portaudio/
+    git clone https://github.com/PortAudio/portaudio/
+    cd portaudio
+    ./configure
+    make
+    sudo make install
+2. install PyAudio-0.2.11.tar.gz
+    tar -xzf PyAudio-0.2.11.tar.gz
+    cd PyAudio-0.2.11
+    python setup.py install
