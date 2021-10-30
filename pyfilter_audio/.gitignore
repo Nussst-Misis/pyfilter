@@ -2,3 +2,7 @@ blur/venv/**
 .idea
 .audio
 .models
+__pycache__/
+
+__pycache__/**/
+**/__pycache__/**
