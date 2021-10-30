@@ -1,13 +1,13 @@
 from pydantic import BaseSettings
 
-__all__ = ("settings",)
+__all__ = ("settings", "PROCESSING_TIMEOUT")
+
+PROCESSING_TIMEOUT = 60 * 60
 
 
 class Settings(BaseSettings):
-    aws_access_key_id: str
-    aws_secret_access_key: str
-    aws_bucket: str
-    max_workers: int = 1
+    rabbitmq_url: str
+    redis_url: str
 
 
 settings = Settings()
