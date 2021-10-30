@@ -50,14 +50,14 @@ def Censor(sourceVideo: str, sourceAudio: str, out: str, videoSegments: List[Vid
 
 
 if __name__ == "__main__":
-    seg1 = VideoDetection(time_start=0, time_end=3000, corner_1=[
+    seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
         590, 730], corner_2=[730, 570])
-    seg2 = VideoDetection(time_start=0, time_end=23000, corner_1=[
+    seg2 = VideoDetection(time_start=0, time_end=23, corner_1=[
         1090, 630], corner_2=[1630, 170])
-    seg3 = VideoDetection(time_start=20000, time_end=25000, corner_1=[
+    seg3 = VideoDetection(time_start=20, time_end=25, corner_1=[
         1290, 730], corner_2=[1730, 370])
-    tf1 = AudioDetection(time_start=0, time_end=5000)
-    tf2 = AudioDetection(time_start=7000, time_end=10000)
+    tf1 = AudioDetection(time_start=0, time_end=5)
+    tf2 = AudioDetection(time_start=7, time_end=10000)
 
     sourceAudio = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
     extractWav(sourceVideo, sourceAudio)

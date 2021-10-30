@@ -74,7 +74,6 @@ def mergeVideoDetections(segments: List[VideoDetection]) -> List[TimeframeSegmen
 
 
 def transferNFrames(cap, out, n: int, modifyFunction=None):
-    print(n)
     for i in range(n):
         ret, frame = cap.read()
 
@@ -92,11 +91,10 @@ def blurVideo(cap, timeframes: List[TimeframeSegments], out):
     fps = cap.get(cv2.CAP_PROP_FPS)
     cur = 0
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    print(total)
     for timeframe in timeframes:
-        print(timeframe)
-        mod_start = min(0, int(fps*(timeframe.time_start)/1000))
-        mod_end = min(total, int(fps*(timeframe.time_end)/1000))
+        print("blurring segments: ", timeframe)
+        mod_start = min(0, int(fps*(timeframe.time_start)))
+        mod_end = min(total, int(fps*(timeframe.time_end)))
 
         if mod_start-cur > 0:
             transferNFrames(cap, out, mod_start-cur)
@@ -124,19 +122,19 @@ def BlurVideo(cap, outputFile, segments: List[VideoDetection]):
         raise
 
     out = createVideoWriter(cap, outputFile)
-    segments = mergeVideoDetections([seg1, seg2, seg3])
-    blurVideo(cap, segments, out)
+    tfSegments = mergeVideoDetections(segments)
+    blurVideo(cap, tfSegments, out)
     out.release()
     cap.release()
 
 
 if __name__ == "__main__":
 
-    seg1 = VideoDetection(time_start=0, time_end=3000, corner_1=[
+    seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
         590, 730], corner_2=[730, 570])
-    seg2 = VideoDetection(time_start=0, time_end=23000, corner_1=[
+    seg2 = VideoDetection(time_start=0, time_end=23, corner_1=[
         1090, 630], corner_2=[1630, 170])
-    seg3 = VideoDetection(time_start=20000, time_end=25000, corner_1=[
+    seg3 = VideoDetection(time_start=20, time_end=25, corner_1=[
         1290, 730], corner_2=[1730, 370])
 
     constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"

@@ -5,8 +5,8 @@ from scipy.io import wavfile
 
 
 def reverseInterval(arr, start: int, end: int, fps: int, total: int):
-    startFrame = int(fps*start/1000)
-    endFrame = int(fps*end/1000)
+    startFrame = int(fps*start)
+    endFrame = int(fps*end)
     arr[startFrame:endFrame] = arr[startFrame:endFrame][::-1]
 
 
@@ -31,8 +31,8 @@ def CensorAudio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
 
 if __name__ == "__main__":
 
-    tf1 = AudioDetection(time_start=0, time_end=5000)
-    tf2 = AudioDetection(time_start=7000, time_end=10000)
+    tf1 = AudioDetection(time_start=0, time_end=5)
+    tf2 = AudioDetection(time_start=7, time_end=10)
 
     constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
     constWavFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
