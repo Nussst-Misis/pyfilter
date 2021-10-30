@@ -1,2 +1,7 @@
-blur/venv/**
+venv/**
 .idea
+__pycache__
+
+*.mp4
+*.wav
+*.avi

@@ -173,7 +173,9 @@ if __name__ == '__main__':
     # prepare_data(os.getcwd() + "/.data/celebrities.json<")
     pt = ProcessText()
     logger.info("Starting finding persons in selected text:")
+
     text = "Неужели, это же Алан Алда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
     logger.info(text)
     logger.info(pt(text))
     logger.info(pt(' '.join(elem.capitalize() for elem in text.split())))
+
