@@ -1,39 +1,42 @@
-import sys
 import wave
-import pyaudio
+from models import AudioDetection
+from typing import List
+from scipy.io import wavfile
 
 constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
-constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
+constWavFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
+constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.wav"
 
 
-CHUNK = 1024
+def reverseInterval(arr, start: int, end: int, fps: int, total: int):
+    startFrame = int(fps*start/1000)
+    endFrame = int(fps*end/1000)
+    arr[startFrame:endFrame] = arr[startFrame:endFrame][::-1]
 
-if len(sys.argv) < 2:
-    print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
-    sys.exit(-1)
 
-wf = wave.open(sys.argv[1], 'rb')
+def CensorAudio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
+    w = wave.open(wavFile, 'rb')
+    fps = w.getframerate()
+    total = w.getnframes()
+    w.close()
 
-# instantiate PyAudio (1)
-p = pyaudio.PyAudio()
+    fs, data = wavfile.read(wavFile)
+    chans = []
+    if len(data.shape) == 1:
+        chans = [data]
+    elif len(data.shape) == 2:
+        chans = [data[:, 0], data[:, 1]]
 
-# open stream (2)
-stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                channels=wf.getnchannels(),
-                rate=wf.getframerate(),
-                output=True)
+    for tf in timeframes:
+        for chan in chans:
+            reverseInterval(chan, tf.time_start, tf.time_end, fps, total)
+    wavfile.write(outFile, fs, data)
 
-# read data
-data = wf.readframes(CHUNK)
 
-# play stream (3)
-while len(data) > 0:
-    stream.write(data)
-    data = wf.readframes(CHUNK)
+tf1 = AudioDetection(time_start=0, time_end=5000)
+tf2 = AudioDetection(time_start=7000, time_end=10000)
 
-# stop stream (4)
-stream.stop_stream()
-stream.close()
-
-# close PyAudio (5)
-p.terminate()
+if __name__ == "__main__":
+    #extractWav(constVideoFile, constWavFile)
+    constWavFile = "/home/vlasov/folder/pyfilter/audio_censor/chan2.wav"
+    CensorAudio(constWavFile, constOutputFile, [tf1, tf2])

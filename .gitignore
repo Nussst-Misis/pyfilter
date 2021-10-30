@@ -6,3 +6,5 @@ include/portaudio
 include/PyAudio-0.2.11/**
 
 *.mp4
+*.wav
+*.avi
