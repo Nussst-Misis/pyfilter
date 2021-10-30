@@ -23,7 +23,9 @@ class RecognizeResponse(BaseModel):
 
 
 async def depends_s3(request: Request):
-    async with request.state.aws_session.client("s3") as client:
+    async with request.state.aws_session.client(
+        "s3", endpoint_url=settings.aws_endpoint
+    ) as client:
         yield client
 
 
