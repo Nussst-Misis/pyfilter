@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class TaskMessage(BaseModel):
@@ -17,15 +18,15 @@ class AudioDetection(BaseModel):
 
 
 class AudioResult(BaseModel):
-    result: list[AudioDetection]
+    result: List[AudioDetection]
 
 
 class VideoDetection(BaseModel):
     time_start: float
     time_end: float
-    corner_1: tuple[int, int]
-    corner_2: tuple[int, int]
+    corner_1: List[int]
+    corner_2: List[int]
 
 
 class VideoResult(BaseModel):
-    result: list[VideoDetection]
+    result: List[VideoDetection]

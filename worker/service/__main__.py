@@ -48,7 +48,9 @@ async def main():
         session = get_boto_session()
         rabbit = await stack.enter_async_context(await get_rabbit_connection())
         redis = await stack.enter_async_context(await get_redis_connection())
-        s3client = await stack.enter_async_context(session.client("s3", endpoint_url=settings.aws_endpoint))
+        s3client = await stack.enter_async_context(
+            session.client("s3", endpoint_url=settings.aws_endpoint)
+        )
         await worker(s3client, rabbit, redis)
 
 
@@ -89,7 +91,7 @@ async def process_message(message) -> tuple[Task, VideoResult, AudioResult, Byte
         return task, video, audio, result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger.info("Starting worker.")
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

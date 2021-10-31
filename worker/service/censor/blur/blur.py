@@ -2,7 +2,7 @@ import cv2
 from typing import List
 from pydantic import BaseModel
 import numpy as np
-from .models import VideoDetection
+from ...models import VideoDetection
 
 
 class TimeframeSegments(BaseModel):
