@@ -29,8 +29,11 @@ class DetectFaces:
             input_image, face_locations
         )
 
-        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            _, (distance,) = self.model.get_nns_by_vector(face_encoding, 1, include_distances=True)
+        for (
+                top, right, bottom, left), face_encoding in zip(
+                face_locations, face_encodings):
+            _, (distance,) = self.model.get_nns_by_vector(
+                face_encoding, 1, include_distances=True)
             if distance > THRESHOLD_DISTANCE:
                 continue
             result.append(((right, top), (left, bottom)))

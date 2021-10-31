@@ -9,6 +9,8 @@ import pyaudio
 import pyfilter_audio
 from pathlib import Path
 from loguru import logger
+import moviepy.editor as mp
+from pydub import AudioSegment
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
 SetLogLevel(-1)
@@ -61,7 +63,8 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
         logger.info("Models inited successfully")
 
     @logger.catch
-    def get_text_from_audio(self, audio_url: str) -> [bool, dict]:
+    def get_text_from_audio(self, video_url: str,
+                            need_to_download: bool = False) -> [bool, dict]:
         """
         the given result of one model speech to Text
         {'result': [
@@ -79,13 +82,16 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
           ... ], # and so on
          # and a full text of the sentence
          'text': 'test library ...'}
-
-        :param audio_url: pyfilter_audio for download
+        :param need_to_download: Download or not<
+        :param video_url: pyfilter_video for download
         :return: success code with dict as given in brief with list of models which recognized anything
         """
-        self._download_file(audio_url, self.audio_path)
-        audio_file = VoskSpeechToText.__get_audio(
-            self.audio_path + audio_url.split("/")[-1])
+        if need_to_download:
+            self._download_file(video_url, self.audio_path)
+            audio_file = VoskSpeechToText.__get_audio(
+                self.audio_path + video_url.split("/")[-1])
+        else:
+            audio_file = VoskSpeechToText.__get_audio(video_url)
 
         models_result = dict()
         try:
@@ -104,7 +110,7 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
             logger.error(f"Error message is {e}")
 
         try:
-            os.remove(self.audio_path + audio_url.split("/")[-1])
+            os.remove(self.audio_path + video_url.split("/")[-1])
         except Exception as e:
             logger.error(f"Error message is {e}")
 
@@ -146,7 +152,18 @@ class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
 
     @staticmethod
     @logger.catch
-    def __get_audio(audio_filename: str) -> [bool, pyaudio.PyAudio]:
+    def __get_audio(video_filename: str) -> [bool, pyaudio.PyAudio]:
+        my_clip = mp.VideoFileClip(video_filename)
+        if video_filename[:7] == "file://":
+            video_filename = video_filename[7:]
+        audio_filename = video_filename[:-3] + "wav"
+
+        my_clip.audio.write_audiofile(audio_filename)
+        if my_clip.audio.nchannels != 1:
+            sound = AudioSegment.from_wav(audio_filename)
+            sound = sound.set_channels(1)
+            sound.export(audio_filename, format="wav")
+
         wf = wave.open(audio_filename, "rb")
         if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
             logger.error("Audio file must be WAV format mono PCM.")

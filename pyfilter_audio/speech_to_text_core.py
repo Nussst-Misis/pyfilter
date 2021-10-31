@@ -3,7 +3,6 @@
 
 import os
 import shutil
-import progressbar
 from loguru import logger
 from urllib.request import urlretrieve
 
@@ -11,9 +10,9 @@ from urllib.request import urlretrieve
 class SpeechToText:
     @logger.catch
     def _download_file(
-            self,
-            url: str,
-            destination: str = os.getcwd() +
+        self,
+        url: str,
+        destination: str = os.getcwd() +
             "/.models/speech_to_text/") -> bool:
         try:
             dst = destination + url.split("/")[-1]
@@ -35,7 +34,8 @@ class SpeechToText:
         return True
 
     @logger.catch
-    def get_text_from_audio(self, audio_url: str) -> [bool, dict]:
+    def get_text_from_audio(self, audio_url: str,
+                            need_to_download: bool = False) -> [bool, dict]:
         """
                the given result of one model speech to Text
                {'result': [
@@ -54,6 +54,7 @@ class SpeechToText:
                 # and a full text of the sentence
                 'text': 'test library ...'}
 
+               :param need_to_download: Download or not
                :param audio_url: pyfilter_audio for download
                :return: success code with dict as given in brief with list of models which recognized anything
                """
