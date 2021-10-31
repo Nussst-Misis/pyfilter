@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # coding --utf-8--
 
-from pyfilter_audio import speech_to_text_vosk
-from pyfilter_audio import speech_to_text_core
-from pyfilter_audio import ner_module
-from pyfilter_audio import models
+from worker.service.pyfilter_audio import models, speech_to_text_core, ner_module, speech_to_text_vosk
 from loguru import logger
 
 

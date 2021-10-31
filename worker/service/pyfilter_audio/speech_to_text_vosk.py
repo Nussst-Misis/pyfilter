@@ -6,17 +6,17 @@ import os
 import wave
 
 import pyaudio
-import pyfilter_audio
 from pathlib import Path
 from loguru import logger
 import moviepy.editor as mp
 from pydub import AudioSegment
+from .speech_to_text_core import SpeechToText
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
 SetLogLevel(-1)
 
 
-class VoskSpeechToText(pyfilter_audio.speech_to_text_core.SpeechToText):
+class VoskSpeechToText(SpeechToText):
     ru_ru_url = "https://alphacephei.com/vosk/models/vosk-model-ru-0.10.zip"
     ru_ru_small_url = "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip"
 
