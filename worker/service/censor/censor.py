@@ -40,7 +40,8 @@ def censor(
 
         merge(temp_out_video, temp_out_audio, out)
     except Exception as e:
-        logger.error(f"Error message is {e}")
+        logger.exception(f"Error message is {e}")
+        # raise e
     finally:
         os.remove(temp_out_audio)
         os.remove(temp_out_video)

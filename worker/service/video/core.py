@@ -24,7 +24,7 @@ class DetectFaces:
         logger.info("Detector loaded successfully")
 
     def detect_face(self, input_image: np.ndarray, *args, **kwargs):
-        logger.info("Starting face detection")
+        # logger.info("Starting face detection")
         result = []
 
         face_locations = face_recognition.face_locations(input_image)
@@ -43,16 +43,23 @@ class DetectFaces:
         return result
 
     def detect_faces(self, filename: str) -> list[VideoDetection]:
+        logger.info("Starting face detection")
         detections = []
         cap = cv2.VideoCapture(filename)
         fps = int(cap.get(cv2.CAP_PROP_FPS))
+        frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         current = 0
         while cap.isOpened():
             ret, frame = cap.read()
-            if current % fps:
+            if not ret or current > 1000:
+                break
+            frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+            frame = frame[:, :, ::-1]
+            if current % fps == 0:
                 for face in self.detect_face(frame):
                     detections.append(VideoDetection(time_start=current / fps, time_end=current / fps + fps, corner_1=face[0], corner_2=face[1]))
             current += 1
+            logger.info(f"Processed frame {current} of {frames}")
         return detections
 
 

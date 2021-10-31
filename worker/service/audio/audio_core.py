@@ -14,13 +14,12 @@ class AudioProcess:
         self.ner_module = ner_module.ProcessText()
         self.speech_text = speech_to_text_module
 
-    def __call__(self, audio_url: str, *args, **kwargs) -> [models.AudioResult]:
-        audio_result = models.AudioResult
-        audio_list = list()
+    def __call__(self, audio_url: str, *args, **kwargs) -> list[models.AudioDetection]:
+        audio_list = []
 
         result, text = self.speech_text.get_text_from_audio(audio_url)
         if not result:
-            return audio_result
+            return audio_list
 
         for language, list_of_results in text.items():
             for sentence in list_of_results:
@@ -34,12 +33,5 @@ class AudioProcess:
                             logger.debug(f"Forbidden word is {word.get('word')}")
 
                             audio_list.append(result)
-        audio_result.result = audio_list
+        return audio_list
 
-        return audio_result
-
-
-if __name__ == "__main__":
-    ap = AudioProcess()
-    logger.info("String processing 3 minutes of video")
-    logger.info(ap("/home/ristle/Downloads/hackathon_part_1.mp4").result)

@@ -23,15 +23,16 @@ def process_video(video_data: bytes) -> Tuple[VideoResult, AudioResult, BytesIO]
     out_path = os.path.join(tempfile.mkdtemp(), "out.mp4")
     try:
         # get videoSegments in nn
-        video_result = face_detector.detect_faces(src_path)
+        #video_result = face_detector.detect_faces(src_path)
         # get audio segments from nn
         audio_result = audio_processor(src_path)
+        video_result = face_detector.detect_faces(src_path)
         src_wav_path = src_path[:-3] + "wav"
 
         censor(src_path, src_wav_path, out_path, video_result, audio_result)
     finally:
         os.remove(src_path)
-    with open(out_path, "wb") as f:
-        result = BytesIO(f.read())
+    with open(out_path, "rb") as f:
+        result = f.read()
 
     return VideoResult(result=video_result), AudioResult(result=audio_result), result

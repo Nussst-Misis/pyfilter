@@ -1,7 +1,7 @@
 from tenacity import retry, RetryCallState, wait_fixed
 from aiohttp import ClientSession, ClientResponse
-from concurrent.futures import ProcessPoolExecutor
 from contextlib import AsyncExitStack
+from concurrent.futures import ProcessPoolExecutor
 from loguru import logger
 from io import BytesIO
 
@@ -52,13 +52,13 @@ async def main():
         s3client = await stack.enter_async_context(
             session.client("s3", endpoint_url=settings.aws_endpoint)
         )
-        executor = ProcessPoolExecutor(max_workers=1)
-        await worker(s3client, rabbit, redis, executor)
+        executor
+        await worker(s3client, rabbit, redis)
 
 
 @retry(wait=wait_fixed(5), after=after_log)
 @logger.catch
-async def worker(s3client, rabbit, redis, executor):
+async def worker(s3client, rabbit, redis):
     channel = await rabbit.channel()
     queue = await channel.declare_queue("process_video")
 
@@ -66,11 +66,10 @@ async def worker(s3client, rabbit, redis, executor):
         logger.info("Consuming incoming messages.")
         async for message in queue_iter:
             message: aio_pika.IncomingMessage
-            task, video, audio, result = await process_message(message, executor)
+            task, video, audio, result = await process_message(message)
             audio = BytesIO(audio.json().encode("utf-8"))
             video = BytesIO(video.json().encode("utf-8"))
-            result = BytesIO(result)
-            logger.info("Processing complete, uploading")
+
             await s3client.upload_fileobj(
                 audio, settings.aws_bucket, f"{task.message.prefix}_audio.json"
             )
@@ -86,12 +85,12 @@ async def worker(s3client, rabbit, redis, executor):
             await redis.set(f"task.{task.task_id}", 1)
 
 
-async def process_message(message, executor) -> tuple[Task, VideoResult, AudioResult, bytes]:
+async def process_message(message) -> tuple[Task, VideoResult, AudioResult, BytesIO]:
     async with message.process():
         task = Task(**json.loads(message.body))
         logger.info(f"Processing task '{task.task_id}'")
         content = await download_content(task.message.source)
-        video, audio, result = await loop.run_in_executor(executor, process_video, content)
+        video, audio, result = process_video(content)
         return task, video, audio, result
 
 
