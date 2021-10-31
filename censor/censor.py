@@ -1,19 +1,15 @@
 import subprocess
-from blur.blur import BlurVideo
+from blur.blur import blur_video
 from blur.models import AudioDetection, VideoDetection
 import cv2
 from typing import List
-from audio_censor.sound import CensorAudio
+from audio_censor.sound import censor_audio
 import os
 import tempfile
 from loguru import logger
 
-sourceVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
 
-resultVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
-
-
-def extractWav(video: str, out: str):
+def extract_wav(video: str, out: str):
     command = "yes|ffmpeg -i {} -ab 160k -ac 2 -ar 44100 -vn {}".format(
         video, out)
     subprocess.call(command, shell=True)
@@ -25,7 +21,7 @@ def merge(video: str, audio: str, out: str):
     subprocess.call(command, shell=True)
 
 
-def Censor(
+def censor(
         sourceVideo: str,
         sourceAudio: str,
         out: str,
@@ -41,10 +37,10 @@ def Censor(
     try:
         cap = cv2.VideoCapture(sourceVideo)
 
-        CensorAudio(sourceAudio, tempOutAudio, audioSegments)
+        censor_audio(sourceAudio, tempOutAudio, audioSegments)
         os.remove(sourceAudio)
 
-        BlurVideo(cap, tempOutVideo, videoSegments)
+        blur_video(cap, tempOutVideo, videoSegments)
 
         merge(tempOutVideo, tempOutAudio, out)
     except Exception as e:
@@ -55,6 +51,9 @@ def Censor(
 
 
 if __name__ == "__main__":
+    sourceVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+    resultVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
+
     seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
         590, 730], corner_2=[730, 570])
     seg2 = VideoDetection(time_start=0, time_end=23, corner_1=[
@@ -65,6 +64,6 @@ if __name__ == "__main__":
     tf2 = AudioDetection(time_start=7, time_end=10000)
 
     sourceAudio = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
-    extractWav(sourceVideo, sourceAudio)
-    Censor(sourceVideo, sourceAudio, resultVideo,
+    extract_wav(sourceVideo, sourceAudio)
+    censor(sourceVideo, sourceAudio, resultVideo,
            [seg1, seg2, seg3], [tf1, tf2])
