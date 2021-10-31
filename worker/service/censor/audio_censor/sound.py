@@ -1,5 +1,5 @@
 import wave
-from .models import AudioDetection
+from ...models import AudioDetection
 from typing import List
 from scipy.io import wavfile
 

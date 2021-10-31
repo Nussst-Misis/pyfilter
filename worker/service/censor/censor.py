@@ -1,6 +1,6 @@
 import subprocess
 from blur.blur import blur_video
-from blur.models import AudioDetection, VideoDetection
+from ..models import AudioDetection, VideoDetection
 import cv2
 from typing import List
 from audio_censor.sound import censor_audio
