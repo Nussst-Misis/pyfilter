@@ -10,7 +10,7 @@ from pathlib import Path
 from loguru import logger
 import moviepy.editor as mp
 from pydub import AudioSegment
-from speech_to_text_core import SpeechToText
+from .speech_to_text_core import SpeechToText
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
 SetLogLevel(-1)

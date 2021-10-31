@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 # coding --utf-8--
 
-import sys
-
-sys.path.append("..")
-
-import speech_to_text_core, ner_module, speech_to_text_vosk
-import models
+from . import speech_to_text_core, ner_module, speech_to_text_vosk
+from .. import models
 from loguru import logger
 
 
