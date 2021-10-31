@@ -6,11 +6,14 @@ import tempfile
 import os
 
 from .models import AudioResult, VideoResult
+from pyfilter_audio.audio_core import AudioProcess
+
+# Init AudioProcessing
+ap = AudioProcess()
 
 
 def process_video(
         video_data: bytes) -> Tuple[VideoResult, AudioResult, BytesIO]:
-
     srcPath = os.path.join(tempfile.mkdtemp(), 'source.mp4')
     with open(srcPath, 'w') as source:
         source.write(video_data)
@@ -29,10 +32,8 @@ def process_video(
         seg3 = VideoDetection(time_start=20, time_end=25, corner_1=[
             1290, 730], corner_2=[1730, 370])
         videoResult = [seg1, seg2, seg3]
-        # get audio segments in nn
-        tf1 = AudioDetection(time_start=0, time_end=5)
-        tf2 = AudioDetection(time_start=7, time_end=10000)
-        audioResult = [tf1, tf2]
+        # get audio segments from nn
+        audioResult = ap(srcPath)
 
         censor(srcPath,
                srcWavPath,
