@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # coding --utf-8--
 
-from worker.service.pyfilter_audio import models, speech_to_text_core, ner_module, speech_to_text_vosk
+import sys
+
+sys.path.append("..")
+
+import speech_to_text_core, ner_module, speech_to_text_vosk
+import models
 from loguru import logger
 
 
@@ -13,7 +18,7 @@ class AudioProcess:
         self.speech_text = speech_to_text_module
 
     def __call__(self, audio_url: str, *args, **
-                 kwargs) -> [models.AudioResult]:
+    kwargs) -> [models.AudioResult]:
         audio_result = models.AudioResult
         audio_list = list()
 
