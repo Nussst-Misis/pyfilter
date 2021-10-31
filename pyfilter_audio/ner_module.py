@@ -30,8 +30,11 @@ def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
 
 
 @logger.catch
-def extractDataFromFSM(filename: str = os.getcwd() + "/.data/celebrities.txt",
-                       celebrities: str = os.getcwd() + "/.data/celebrities.json"):
+def extractDataFromFSM(
+    filename: str = os.getcwd() +
+    "/.data/celebrities.txt",
+    celebrities: str = os.getcwd() +
+        "/.data/celebrities.json"):
     all_data = dict()
 
     all_data['names'] = list()
@@ -86,7 +89,10 @@ def prepare_data(celebrities: str):
 
 class ProcessText:
     @logger.catch
-    def __init__(self, celebrities: str = os.getcwd() + "/.data/celebrities.json"):
+    def __init__(
+            self,
+            celebrities: str = os.getcwd() +
+            "/.data/celebrities.json"):
         self.celebrities = json.load(open(celebrities, 'r'))
         self.segmenter = Segmenter()
         self.morph_vocab = MorphVocab()
@@ -123,16 +129,20 @@ class ProcessText:
         forbidden_info = list()
 
         for fact in doc.spans:
-            found, info = ProcessText.search(self.celebrities, fact.as_json, 'names')
+            found, info = ProcessText.search(
+                self.celebrities, fact.as_json, 'names')
             if found is True:
                 forbidden_info.append(fact)
 
         for fact in text.split():
-            found, info = ProcessText.search(self.celebrities, {"normal": fact}, 'names')
+            found, info = ProcessText.search(
+                self.celebrities, {"normal": fact}, 'names')
             if found is True and fact not in forbidden_info:
                 already_in = False
                 for name in forbidden_info:
-                    if isinstance(fact, str) and isinstance(name, str) and fact not in name:
+                    if isinstance(
+                            fact, str) and isinstance(
+                            name, str) and fact not in name:
                         continue
                     if fact in name.as_json["text"]:
                         already_in = True
@@ -163,7 +173,9 @@ if __name__ == '__main__':
     # prepare_data(os.getcwd() + "/.data/celebrities.json<")
     pt = ProcessText()
     logger.info("Starting finding persons in selected text:")
+
     text = "Неужели, это же Алан Алда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
     logger.info(text)
     logger.info(pt(text))
     logger.info(pt(' '.join(elem.capitalize() for elem in text.split())))
+

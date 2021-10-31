@@ -33,11 +33,11 @@ def cropVideoDetectionToFit(segment: List[int], img: np.ndarray):
         if point[0] < 0:
             point[0] = 0
         if point[0] >= img.shape[1]:
-            point[0] = img.shape[1]-1
+            point[0] = img.shape[1] - 1
         if point[1] < 0:
             point[1] = 0
         if point[1] >= img.shape[0]:
-            point[1] = img.shape[0]-1
+            point[1] = img.shape[0] - 1
 
 
 def blurImageVideoDetection(img: np.ndarray, segments: List[List[int]]):
@@ -52,18 +52,19 @@ def blurImageVideoDetection(img: np.ndarray, segments: List[List[int]]):
                   [1], seg[0][0]:seg[1][0]] = blurred
 
 
-def mergeVideoDetections(segments: List[VideoDetection]) -> List[TimeframeSegments]:
-    timeline = np.zeros(len(segments)*2)
+def mergeVideoDetections(
+        segments: List[VideoDetection]) -> List[TimeframeSegments]:
+    timeline = np.zeros(len(segments) * 2)
     for i in range(len(segments)):
-        timeline[i*2] = segments[i].time_start
-        timeline[i*2+1] = segments[i].time_end
+        timeline[i * 2] = segments[i].time_start
+        timeline[i * 2 + 1] = segments[i].time_end
     timeline = sorted(timeline)
     timeline = list(dict.fromkeys(timeline))
 
     res = []
-    for i in range(len(timeline)-1):
+    for i in range(len(timeline) - 1):
         t1 = timeline[i]
-        t2 = timeline[i+1]
+        t2 = timeline[i + 1]
         segs = TimeframeSegments(time_start=t1, time_end=t2, segments=[])
         for seg in segments:
             if seg.time_start <= t1 and seg.time_end >= t2:
@@ -77,7 +78,7 @@ def transferNFrames(cap, out, n: int, modifyFunction=None):
     for i in range(n):
         ret, frame = cap.read()
 
-        if ret == True:
+        if ret:
             if modifyFunction is not None:
                 modifyFunction(frame)
             out.write(frame)
@@ -93,18 +94,23 @@ def blurVideo(cap, timeframes: List[TimeframeSegments], out):
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     for timeframe in timeframes:
         print("blurring segments: ", timeframe)
-        mod_start = min(0, int(fps*(timeframe.time_start)))
-        mod_end = min(total, int(fps*(timeframe.time_end)))
+        mod_start = min(0, int(fps * (timeframe.time_start)))
+        mod_end = min(total, int(fps * (timeframe.time_end)))
 
-        if mod_start-cur > 0:
-            transferNFrames(cap, out, mod_start-cur)
-            cur += mod_start-cur
+        if mod_start - cur > 0:
+            transferNFrames(cap, out, mod_start - cur)
+            cur += mod_start - cur
 
-        transferNFrames(cap, out, mod_end-cur,
-                        lambda frame: blurImageVideoDetection(frame, timeframe.segments))
-        cur += mod_end-cur
+        transferNFrames(
+            cap,
+            out,
+            mod_end - cur,
+            lambda frame: blurImageVideoDetection(
+                frame,
+                timeframe.segments))
+        cur += mod_end - cur
 
-    transferNFrames(cap, out, total-cur)
+    transferNFrames(cap, out, total - cur)
 
 
 def createVideoWriter(cap, outFilename: str):

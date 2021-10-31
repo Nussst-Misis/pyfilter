@@ -5,8 +5,8 @@ from scipy.io import wavfile
 
 
 def reverseInterval(arr, start: int, end: int, fps: int, total: int):
-    startFrame = int(fps*start)
-    endFrame = int(fps*end)
+    startFrame = int(fps * start)
+    endFrame = int(fps * end)
     arr[startFrame:endFrame] = arr[startFrame:endFrame][::-1]
 
 

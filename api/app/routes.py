@@ -73,7 +73,9 @@ async def recognize(
 async def task_status(task_id: str, redis: Redis = Depends(depends_redis)):
     status = await redis.get(f"task.{task_id}")
     if status is None:
-        raise HTTPException(detail="Task expired or does not exists.", status_code=400)
+        raise HTTPException(
+            detail="Task expired or does not exists.",
+            status_code=400)
 
     status = int(status)
     if status == TaskStatus.PROCESSING:

@@ -25,7 +25,12 @@ def merge(video: str, audio: str, out: str):
     subprocess.call(command, shell=True)
 
 
-def Censor(sourceVideo: str, sourceAudio: str, out: str, videoSegments: List[VideoDetection], audioSegments: List[AudioDetection]):
+def Censor(
+        sourceVideo: str,
+        sourceAudio: str,
+        out: str,
+        videoSegments: List[VideoDetection],
+        audioSegments: List[AudioDetection]):
     # sourceAudio file will be deleted after it has been read
 
     defult_tmp_dir = tempfile._get_default_tempdir()
