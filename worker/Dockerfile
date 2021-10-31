@@ -11,6 +11,7 @@ WORKDIR /worker/
 
 RUN pip install -r requirements.txt
 
+ADD ./.data /worker/.data
 ADD ./service /worker/service/
 
 CMD ["python", "-m", "service"]
