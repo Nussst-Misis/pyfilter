@@ -18,3 +18,7 @@ class VideoDetection(BaseModel):
 
 class AudioResult(BaseModel):
     result: list[AudioDetection]
+
+
+class VideoResult(BaseModel):
+    result: list[VideoDetection]

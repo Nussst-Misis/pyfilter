@@ -30,10 +30,8 @@ class AudioProcess:
                     for word in sentence.get("result"):
                         founded_persons = self.ner_module(word.get('word'))
                         if len(founded_persons) != 0:
-                            result = models.AudioDetection
-                            result.time_start = word.get("start")
-                            result.time_end = word.get("end")
-
+                            result = models.AudioDetection(
+                                time_start=word.get("start"), time_end=word.get("end"))
                             logger.debug(
                                 f"Forbidden word is {word.get('word')}")
 
