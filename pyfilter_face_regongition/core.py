@@ -3,42 +3,39 @@
 
 from loguru import logger
 from pathlib import Path
+from annoy import AnnoyIndex
 import face_recognition
 import numpy as np
-import glob
-import os
+
+THRESHOLD_DISTANCE = 0.5
 
 
 # Todo: Доделать класс для создания VideoResult
 class DetectFaces:
-    def __init__(self, data_dir: str = os.getcwd() + "/.data/"):
-
+    def __init__(self, data_dir: Path = Path() / ".data"):
         Path(data_dir).mkdir(parents=True, exist_ok=True)
 
         self.data_dir = data_dir
+        self.model = AnnoyIndex(128, "euclidean")
+        self.model.load(data_dir / "faces.ann")
         logger.info("Detector loaded successfully")
 
     def __call__(self, input_image: np.ndarray, *args, **kwargs):
-        result_array = list()
-
         logger.info("Starting face detection")
-
-        celebs = [face_recognition.face_encodings(
-            celeb)[0] for celeb in glob.glob(self.data_dir + "*.jpg")]
+        result = []
 
         face_locations = face_recognition.face_locations(input_image)
         face_encodings = face_recognition.face_encodings(
-            input_image, face_locations)
+            input_image, face_locations
+        )
 
-        for face_encoding in face_encodings:
-            result = face_recognition.compare_faces(celebs, face_encoding)
+        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+            _, (distance,) = self.model.get_nns_by_vector(face_encoding, 1, include_distances=True)
+            if distance > THRESHOLD_DISTANCE:
+                continue
+            result.append(((right, top), (left, bottom)))
 
-            indices = [i for i, x in enumerate(result) if x]
-            logger.info(f"Found {indices} celeb faces")
-            for index in indices:
-                result_array.append(face_locations[index])
-
-        return result_array
+        return result
 
 
 if __name__ == "__main__":
