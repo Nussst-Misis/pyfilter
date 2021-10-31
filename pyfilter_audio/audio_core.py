@@ -45,4 +45,4 @@ if __name__ == "__main__":
     ap = AudioProcess()
     logger.info("String processing 3 minutes of video")
     logger.info(
-        ap("file:///home/ristle/Programming/speech-to-text/fr/audio/my_result.wav").result)
+        ap("/home/ristle/Downloads/hackathon_part_1.mp4").result)
