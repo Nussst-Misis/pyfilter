@@ -11,7 +11,7 @@ def reverse_interval(arr, start: int, end: int, fps: int, total: int):
 
 
 def censor_audio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
-    w = wave.open(wavFile, 'rb')
+    w = wave.open(wavFile, "rb")
     fps = w.getframerate()
     total = w.getnframes()
     w.close()

@@ -7,16 +7,15 @@ from loguru import logger
 from natasha import (
     Segmenter,
     MorphVocab,
-
     NewsEmbedding,
     NewsMorphTagger,
     NewsSyntaxParser,
     NewsNERTagger,
-
-    PER, ORG, LOC,
+    PER,
+    ORG,
+    LOC,
     NamesExtractor,
-
-    Doc
+    Doc,
 )
 
 
@@ -31,17 +30,16 @@ def getFSM(filename: str = os.getcwd() + "/.data/celebrities.txt") -> list:
 
 @logger.catch
 def extractDataFromFSM(
-        filename: str = os.getcwd() +
-    "/.data/celebrities.txt",
-        celebrities: str = os.getcwd() +
-        "/.data/celebrities.json"):
+    filename: str = os.getcwd() + "/.data/celebrities.txt",
+    celebrities: str = os.getcwd() + "/.data/celebrities.json",
+):
     all_data = dict()
 
-    all_data['names'] = list()
-    all_data['others'] = list()
-    all_data['organizations'] = list()
+    all_data["names"] = list()
+    all_data["others"] = list()
+    all_data["organizations"] = list()
 
-    celebrities = json.load(open(celebrities, 'r'))
+    celebrities = json.load(open(celebrities, "r"))
 
     segmenter = Segmenter()
     morph_vocab = MorphVocab()
@@ -69,10 +67,10 @@ def extractDataFromFSM(
             span.normalize(morph_vocab)
 
         for fact in doc.spans:
-            if fact.text in celebrities.get('names'):
+            if fact.text in celebrities.get("names"):
                 continue
             if fact.type == PER:
-                all_data['names'].append(fact.as_json)
+                all_data["names"].append(fact.as_json)
 
     for sentence in fsm:
         if len(sentence) > 2:
@@ -84,18 +82,15 @@ def extractDataFromFSM(
 def prepare_data(celebrities: str):
     prepared_data = extractDataFromFSM()
 
-    with open(celebrities, 'w') as f:
+    with open(celebrities, "w") as f:
         json.dump(prepared_data, f, ensure_ascii=False, indent=4)
 
 
 class ProcessText:
     @logger.catch
-    def __init__(
-        self,
-        celebrities: str = os.getcwd() +
-            "/.data/celebrities.json"):
+    def __init__(self, celebrities: str = os.getcwd() + "/.data/celebrities.json"):
 
-        self.celebrities = json.load(open(celebrities, 'r'))
+        self.celebrities = json.load(open(celebrities, "r"))
         self.segmenter = Segmenter()
         self.morph_vocab = MorphVocab()
 
@@ -131,20 +126,22 @@ class ProcessText:
         forbidden_info = list()
 
         for fact in doc.spans:
-            found, info = ProcessText.search(
-                self.celebrities, fact.as_json, 'names')
+            found, info = ProcessText.search(self.celebrities, fact.as_json, "names")
             if found is True:
                 forbidden_info.append(fact)
 
         for fact in text.split():
             found, info = ProcessText.search(
-                self.celebrities, {"normal": fact}, 'names')
+                self.celebrities, {"normal": fact}, "names"
+            )
             if found is True and fact not in forbidden_info:
                 already_in = False
                 for name in forbidden_info:
-                    if isinstance(
-                        fact, str) and isinstance(
-                            name, str) and fact not in name:
+                    if (
+                        isinstance(fact, str)
+                        and isinstance(name, str)
+                        and fact not in name
+                    ):
                         continue
                     if fact in name.as_json["text"]:
                         already_in = True
@@ -171,7 +168,7 @@ class ProcessText:
         return output_data
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     prepare_data(os.getcwd() + "/.data/celebrities.json")
     pt = ProcessText()
     logger.info("Starting finding persons in selected text:")
@@ -179,4 +176,4 @@ if __name__ == '__main__':
     text = "Неужели, это же Алан Альда вместе с Антоном Вязовым! Вот тебе и тимберлейк"
     logger.info(text)
     logger.info(pt(text))
-    logger.info(pt(' '.join(elem.capitalize() for elem in text.split())))
+    logger.info(pt(" ".join(elem.capitalize() for elem in text.split())))

@@ -22,10 +22,11 @@ class VoskSpeechToText(SpeechToText):
 
     @logger.catch
     def __init__(
-            self,
-            model_path: str = os.getcwd() + "/.models/speech_to_text/",
-            audio_path: str = os.getcwd() + "/.audio/",
-            small_model_mode: bool = True):
+        self,
+        model_path: str = os.getcwd() + "/.models/speech_to_text/",
+        audio_path: str = os.getcwd() + "/.audio/",
+        small_model_mode: bool = True,
+    ):
         self.models = dict()
         self.model_path = model_path
         self.audio_path = audio_path
@@ -63,8 +64,9 @@ class VoskSpeechToText(SpeechToText):
         logger.info("Models inited successfully")
 
     @logger.catch
-    def get_text_from_audio(self, video_url: str,
-                            need_to_download: bool = False) -> [bool, dict]:
+    def get_text_from_audio(
+        self, video_url: str, need_to_download: bool = False
+    ) -> [bool, dict]:
         """
         the given result of one model speech to Text
         {'result': [
@@ -89,7 +91,8 @@ class VoskSpeechToText(SpeechToText):
         if need_to_download:
             self._download_file(video_url, self.audio_path)
             audio_file = VoskSpeechToText.__get_audio(
-                self.audio_path + video_url.split("/")[-1])
+                self.audio_path + video_url.split("/")[-1]
+            )
         else:
             audio_file = VoskSpeechToText.__get_audio(video_url)
 
@@ -121,19 +124,16 @@ class VoskSpeechToText(SpeechToText):
 
     @logger.catch
     def get_full_test(self, text_result: list) -> str:
-        text = ''
+        text = ""
         for r in text_result:
-            text += r['text'] if r is not None else ' ' + ' '
+            text += r["text"] if r is not None else " " + " "
 
         logger.info("\tVosk thinks you said:")
         logger.info(text)
         return text
 
     @logger.catch
-    def __recognize_text(
-            self,
-            audio_file,
-            recognition: KaldiRecognizer) -> list:
+    def __recognize_text(self, audio_file, recognition: KaldiRecognizer) -> list:
         results = []
 
         # recognize speech using "Voks" model
@@ -165,7 +165,11 @@ class VoskSpeechToText(SpeechToText):
             sound.export(audio_filename, format="wav")
 
         wf = wave.open(audio_filename, "rb")
-        if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
+        if (
+            wf.getnchannels() != 1
+            or wf.getsampwidth() != 2
+            or wf.getcomptype() != "NONE"
+        ):
             logger.error("Audio file must be WAV format mono PCM.")
             return wf
 

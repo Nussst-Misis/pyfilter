@@ -43,17 +43,14 @@ def crop_video_detection_to_fit(segment: List[int], img: np.ndarray):
 def blur_image_video_detection(img: np.ndarray, segments: List[List[int]]):
     for seg in segments:
         crop_video_detection_to_fit(seg, img)
-        roi = img[seg[1][1]:seg[0]
-                  [1], seg[0][0]:seg[1][0]]
+        roi = img[seg[1][1] : seg[0][1], seg[0][0] : seg[1][0]]
         if roi.shape[0] == 0 or roi.shape[1] == 0:
             continue
         blurred = simple_blur(roi)
-        img[seg[1][1]:seg[0]
-                  [1], seg[0][0]:seg[1][0]] = blurred
+        img[seg[1][1] : seg[0][1], seg[0][0] : seg[1][0]] = blurred
 
 
-def merge_video_detections(
-        segments: List[VideoDetection]) -> List[TimeframeSegments]:
+def merge_video_detections(segments: List[VideoDetection]) -> List[TimeframeSegments]:
     timeline = np.zeros(len(segments) * 2)
     for i in range(len(segments)):
         timeline[i * 2] = segments[i].time_start
@@ -105,9 +102,8 @@ def blur_from_timeframes(cap, timeframes: List[TimeframeSegments], out):
             cap,
             out,
             mod_end - cur,
-            lambda frame: blur_image_video_detection(
-                frame,
-                timeframe.segments))
+            lambda frame: blur_image_video_detection(frame, timeframe.segments),
+        )
         cur += mod_end - cur
 
     transfer_n_frames(cap, out, total - cur)
@@ -117,13 +113,12 @@ def create_video_writer(cap, out_filename: str):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)
     size = (width, height)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    return cv2.VideoWriter(
-        out_filename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    return cv2.VideoWriter(out_filename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
 
 
 def blur_video(cap, output_file, segments: List[VideoDetection]):
-    if (cap.isOpened() == False):
+    if cap.isOpened() == False:
         print("Error opening video stream or file")
         raise
 
@@ -136,12 +131,15 @@ def blur_video(cap, output_file, segments: List[VideoDetection]):
 
 if __name__ == "__main__":
 
-    seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
-        590, 730], corner_2=[730, 570])
-    seg2 = VideoDetection(time_start=0, time_end=23, corner_1=[
-        1090, 630], corner_2=[1630, 170])
-    seg3 = VideoDetection(time_start=20, time_end=25, corner_1=[
-        1290, 730], corner_2=[1730, 370])
+    seg1 = VideoDetection(
+        time_start=0, time_end=3, corner_1=[590, 730], corner_2=[730, 570]
+    )
+    seg2 = VideoDetection(
+        time_start=0, time_end=23, corner_1=[1090, 630], corner_2=[1630, 170]
+    )
+    seg3 = VideoDetection(
+        time_start=20, time_end=25, corner_1=[1290, 730], corner_2=[1730, 370]
+    )
 
     const_video_file = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
     const_output_file = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
