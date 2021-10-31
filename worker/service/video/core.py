@@ -19,9 +19,8 @@ class DetectFaces:
     def __init__(self, data_dir: Path = Path() / ".data"):
         Path(data_dir).mkdir(parents=True, exist_ok=True)
 
-        self.data_dir = data_dir
         self.model = AnnoyIndex(128, "euclidean")
-        self.model.load(data_dir / "faces.ann")
+        self.model.load(str(data_dir / "faces.ann"))
         logger.info("Detector loaded successfully")
 
     def detect_face(self, input_image: np.ndarray, *args, **kwargs):
