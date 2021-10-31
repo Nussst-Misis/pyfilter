@@ -18,12 +18,8 @@ def process_video(
     with open(src_path, 'w') as source:
         source.write(video_data)
 
-    src_wav_path = os.path.join(tempfile.mkdtemp(), 'source.wav')
     out_path = os.path.join(tempfile.mkdtemp(), 'out.mp4')
     try:
-        # extract wav in nn
-        # wrcWavPath will be deleted in censor
-        extract_wav(src_path, src_wav_path)
         # get videoSegments in nn
         seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
             590, 730], corner_2=[730, 570])
@@ -34,6 +30,7 @@ def process_video(
         video_result = [seg1, seg2, seg3]
         # get audio segments from nn
         audio_result = ap(src_path)
+        src_wav_path = src_path[:-3]+"wav"
 
         censor(src_path,
                src_wav_path,
