@@ -16,3 +16,4 @@ natasha
 wave
 opencv-python
 moviepy
+pydub
