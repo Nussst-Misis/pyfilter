@@ -1,1 +1,5 @@
 loguru
+opencv-python
+pydantic
+numpy
+scipy

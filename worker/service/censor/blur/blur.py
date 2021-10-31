@@ -74,13 +74,13 @@ def merge_video_detections(
     return res
 
 
-def transfer_n_frames(cap, out, n: int, modifyFunction=None):
+def transfer_n_frames(cap, out, n: int, modify_function=None):
     for i in range(n):
         ret, frame = cap.read()
 
         if ret:
-            if modifyFunction is not None:
-                modifyFunction(frame)
+            if modify_function is not None:
+                modify_function(frame)
             out.write(frame)
         else:
             print("unexpected EOF")
@@ -113,23 +113,23 @@ def blur_from_timeframes(cap, timeframes: List[TimeframeSegments], out):
     transfer_n_frames(cap, out, total - cur)
 
 
-def create_video_writer(cap, outFilename: str):
+def create_video_writer(cap, out_filename: str):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)
     size = (width, height)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     return cv2.VideoWriter(
-        outFilename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
+        out_filename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
 
 
-def blur_video(cap, outputFile, segments: List[VideoDetection]):
+def blur_video(cap, output_file, segments: List[VideoDetection]):
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
         raise
 
-    out = create_video_writer(cap, outputFile)
-    tfSegments = merge_video_detections(segments)
-    blur_from_timeframes(cap, tfSegments, out)
+    out = create_video_writer(cap, output_file)
+    fs_segments = merge_video_detections(segments)
+    blur_from_timeframes(cap, fs_segments, out)
     out.release()
     cap.release()
 
@@ -143,8 +143,8 @@ if __name__ == "__main__":
     seg3 = VideoDetection(time_start=20, time_end=25, corner_1=[
         1290, 730], corner_2=[1730, 370])
 
-    constVideoFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
-    constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
-    cap = cv2.VideoCapture(constVideoFile)
+    const_video_file = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+    const_output_file = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
+    cap = cv2.VideoCapture(const_video_file)
 
-    blur_video(cap, constOutputFile, [seg1, seg2, seg3])
+    blur_video(cap, const_output_file, [seg1, seg2, seg3])

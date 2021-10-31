@@ -1,9 +1,9 @@
 import subprocess
-from blur.blur import blur_video
+from .blur.blur import blur_video
 from ..models import AudioDetection, VideoDetection
 import cv2
 from typing import List
-from audio_censor.sound import censor_audio
+from .audio_censor.sound import censor_audio
 import os
 import tempfile
 from loguru import logger
@@ -22,37 +22,34 @@ def merge(video: str, audio: str, out: str):
 
 
 def censor(
-        sourceVideo: str,
-        sourceAudio: str,
+        source_video: str,
+        source_audio: str,
         out: str,
-        videoSegments: List[VideoDetection],
-        audioSegments: List[AudioDetection]):
+        viceo_segments: List[VideoDetection],
+        audio_segments: List[AudioDetection]):
     # sourceAudio file will be deleted after it has been read
 
-    defult_tmp_dir = tempfile._get_default_tempdir()
-    tempOutAudio = '{}/{}.wav'.format(defult_tmp_dir,
-                                      next(tempfile._get_candidate_names()))
-    tempOutVideo = '{}/{}.avi'.format(defult_tmp_dir,
-                                      next(tempfile._get_candidate_names()))
+    temp_out_audio = os.path.join(tempfile.mkdtemp(), 'tempOut.wav')
+    temp_out_video = os.path.join(tempfile.mkdtemp(), 'tempOut.avi')
     try:
-        cap = cv2.VideoCapture(sourceVideo)
+        cap = cv2.VideoCapture(source_video)
 
-        censor_audio(sourceAudio, tempOutAudio, audioSegments)
-        os.remove(sourceAudio)
+        censor_audio(source_audio, temp_out_audio, audio_segments)
+        os.remove(source_audio)
 
-        blur_video(cap, tempOutVideo, videoSegments)
+        blur_video(cap, temp_out_video, viceo_segments)
 
-        merge(tempOutVideo, tempOutAudio, out)
+        merge(temp_out_video, temp_out_audio, out)
     except Exception as e:
         logger.error(f"Error message is {e}")
     finally:
-        os.remove(tempOutAudio)
-        os.remove(tempOutVideo)
+        os.remove(temp_out_audio)
+        os.remove(temp_out_video)
 
 
 if __name__ == "__main__":
-    sourceVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
-    resultVideo = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
+    source_video = "/home/vlasov/folder/pyfilter/hackathon_part_1.mp4"
+    result_video = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
 
     seg1 = VideoDetection(time_start=0, time_end=3, corner_1=[
         590, 730], corner_2=[730, 570])
@@ -63,7 +60,7 @@ if __name__ == "__main__":
     tf1 = AudioDetection(time_start=0, time_end=5)
     tf2 = AudioDetection(time_start=7, time_end=10000)
 
-    sourceAudio = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
-    extract_wav(sourceVideo, sourceAudio)
-    censor(sourceVideo, sourceAudio, resultVideo,
+    source_audio = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
+    extract_wav(source_video, source_audio)
+    censor(source_video, source_audio, result_video,
            [seg1, seg2, seg3], [tf1, tf2])

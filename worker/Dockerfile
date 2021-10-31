@@ -1,13 +1,14 @@
 FROM python:3.9
 
+RUN apt install -y cmake ffmpeg libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 RUN pip install poetry
+RUN pip install -v --install-option="--no" --install-option="DLIB_USE_CUDA" dlib
 
-ADD ./pyproject.toml /worker/
-ADD ./poetry.lock /worker/
+ADD ./requirements.txt /worker/
 
 WORKDIR /worker/
 
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+RUN pip install -r requirements.txt
 
 ADD ./service /worker/service/
 
