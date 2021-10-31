@@ -3,7 +3,6 @@
 
 import os
 import shutil
-import progressbar
 from loguru import logger
 from urllib.request import urlretrieve
 
