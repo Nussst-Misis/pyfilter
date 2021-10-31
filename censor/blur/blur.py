@@ -28,7 +28,7 @@ def simple_blur(image: np.ndarray, factor=3.0) -> np.ndarray:
     return cv2.GaussianBlur(image, (kW, kH), 0)
 
 
-def cropVideoDetectionToFit(segment: List[int], img: np.ndarray):
+def crop_video_detection_to_fit(segment: List[int], img: np.ndarray):
     for point in segment:
         if point[0] < 0:
             point[0] = 0
@@ -40,9 +40,9 @@ def cropVideoDetectionToFit(segment: List[int], img: np.ndarray):
             point[1] = img.shape[0] - 1
 
 
-def blurImageVideoDetection(img: np.ndarray, segments: List[List[int]]):
+def blur_image_video_detection(img: np.ndarray, segments: List[List[int]]):
     for seg in segments:
-        cropVideoDetectionToFit(seg, img)
+        crop_video_detection_to_fit(seg, img)
         roi = img[seg[1][1]:seg[0]
                   [1], seg[0][0]:seg[1][0]]
         if roi.shape[0] == 0 or roi.shape[1] == 0:
@@ -52,7 +52,7 @@ def blurImageVideoDetection(img: np.ndarray, segments: List[List[int]]):
                   [1], seg[0][0]:seg[1][0]] = blurred
 
 
-def mergeVideoDetections(
+def merge_video_detections(
         segments: List[VideoDetection]) -> List[TimeframeSegments]:
     timeline = np.zeros(len(segments) * 2)
     for i in range(len(segments)):
@@ -74,7 +74,7 @@ def mergeVideoDetections(
     return res
 
 
-def transferNFrames(cap, out, n: int, modifyFunction=None):
+def transfer_n_frames(cap, out, n: int, modifyFunction=None):
     for i in range(n):
         ret, frame = cap.read()
 
@@ -87,7 +87,7 @@ def transferNFrames(cap, out, n: int, modifyFunction=None):
             raise
 
 
-def blurVideo(cap, timeframes: List[TimeframeSegments], out):
+def blur_from_timeframes(cap, timeframes: List[TimeframeSegments], out):
     # consecutive timeframes containint one or more segments
     fps = cap.get(cv2.CAP_PROP_FPS)
     cur = 0
@@ -98,22 +98,22 @@ def blurVideo(cap, timeframes: List[TimeframeSegments], out):
         mod_end = min(total, int(fps * (timeframe.time_end)))
 
         if mod_start - cur > 0:
-            transferNFrames(cap, out, mod_start - cur)
+            transfer_n_frames(cap, out, mod_start - cur)
             cur += mod_start - cur
 
-        transferNFrames(
+        transfer_n_frames(
             cap,
             out,
             mod_end - cur,
-            lambda frame: blurImageVideoDetection(
+            lambda frame: blur_image_video_detection(
                 frame,
                 timeframe.segments))
         cur += mod_end - cur
 
-    transferNFrames(cap, out, total - cur)
+    transfer_n_frames(cap, out, total - cur)
 
 
-def createVideoWriter(cap, outFilename: str):
+def create_video_writer(cap, outFilename: str):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)
     size = (width, height)
@@ -122,14 +122,14 @@ def createVideoWriter(cap, outFilename: str):
         outFilename, fourcc, cap.get(cv2.CAP_PROP_FPS), size)
 
 
-def BlurVideo(cap, outputFile, segments: List[VideoDetection]):
+def blur_video(cap, outputFile, segments: List[VideoDetection]):
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
         raise
 
-    out = createVideoWriter(cap, outputFile)
-    tfSegments = mergeVideoDetections(segments)
-    blurVideo(cap, tfSegments, out)
+    out = create_video_writer(cap, outputFile)
+    tfSegments = merge_video_detections(segments)
+    blur_from_timeframes(cap, tfSegments, out)
     out.release()
     cap.release()
 
@@ -147,4 +147,4 @@ if __name__ == "__main__":
     constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.mp4"
     cap = cv2.VideoCapture(constVideoFile)
 
-    BlurVideo(cap, constOutputFile, [seg1, seg2, seg3])
+    blur_video(cap, constOutputFile, [seg1, seg2, seg3])

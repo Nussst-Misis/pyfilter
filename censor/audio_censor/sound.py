@@ -4,13 +4,13 @@ from typing import List
 from scipy.io import wavfile
 
 
-def reverseInterval(arr, start: int, end: int, fps: int, total: int):
+def reverse_interval(arr, start: int, end: int, fps: int, total: int):
     startFrame = int(fps * start)
     endFrame = int(fps * end)
     arr[startFrame:endFrame] = arr[startFrame:endFrame][::-1]
 
 
-def CensorAudio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
+def censor_audio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
     w = wave.open(wavFile, 'rb')
     fps = w.getframerate()
     total = w.getnframes()
@@ -25,7 +25,7 @@ def CensorAudio(wavFile: str, outFile: str, timeframes: List[AudioDetection]):
 
     for tf in timeframes:
         for chan in chans:
-            reverseInterval(chan, tf.time_start, tf.time_end, fps, total)
+            reverse_interval(chan, tf.time_start, tf.time_end, fps, total)
     wavfile.write(outFile, fs, data)
 
 
@@ -38,4 +38,4 @@ if __name__ == "__main__":
     constWavFile = "/home/vlasov/folder/pyfilter/hackathon_part_1.wav"
     constOutputFile = "/home/vlasov/folder/pyfilter/hackathon_part_1_out.wav"
 
-    CensorAudio(constWavFile, constOutputFile, [tf1, tf2])
+    censor_audio(constWavFile, constOutputFile, [tf1, tf2])
