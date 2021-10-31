@@ -1,6 +1,6 @@
 from io import BytesIO
 from typing import Tuple
-from censor.censor import censor, extract_wav
+from .censor.censor import censor, extract_wav
 from .models import VideoDetection, AudioDetection
 import tempfile
 import os
