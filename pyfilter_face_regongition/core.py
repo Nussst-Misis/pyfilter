@@ -9,7 +9,6 @@ import glob
 import os
 
 
-
 # Todo: Доделать класс для создания VideoResult
 class DetectFaces:
     def __init__(self, data_dir: str = os.getcwd() + "/.data/"):
@@ -24,10 +23,12 @@ class DetectFaces:
 
         logger.info("Starting face detection")
 
-        celebs = [face_recognition.face_encodings(celeb)[0] for celeb in glob.glob(self.data_dir + "*.jpg")]
+        celebs = [face_recognition.face_encodings(
+            celeb)[0] for celeb in glob.glob(self.data_dir + "*.jpg")]
 
         face_locations = face_recognition.face_locations(input_image)
-        face_encodings = face_recognition.face_encodings(input_image, face_locations)
+        face_encodings = face_recognition.face_encodings(
+            input_image, face_locations)
 
         for face_encoding in face_encodings:
             result = face_recognition.compare_faces(celebs, face_encoding)
@@ -47,4 +48,6 @@ if __name__ == "__main__":
     biden_encoding = face_recognition.face_encodings(known_image)[0]
     unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
 
-    results = face_recognition.compare_faces([biden_encoding], unknown_encoding)
+    results = face_recognition.compare_faces(
+        [biden_encoding], unknown_encoding)
+    # the Result of [False, ...]
