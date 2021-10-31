@@ -1,12 +1,12 @@
 from io import BytesIO
 from typing import Tuple
-from censor.censor import censor, extract_wav
+from .censor.censor import censor, extract_wav
 from .models import VideoDetection
 import tempfile
 import os
 
 from .models import AudioResult, VideoResult
-from .pyfilter_audio.audio_core import AudioProcess
+from .audio.audio_core import AudioProcess
 
 # Init AudioProcessing
 ap = AudioProcess()

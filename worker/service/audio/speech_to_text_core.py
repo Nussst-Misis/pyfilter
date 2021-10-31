@@ -55,7 +55,7 @@ class SpeechToText:
                 'text': 'test library ...'}
 
                :param need_to_download: Download or not
-               :param audio_url: pyfilter_audio for download
+               :param audio_url: audio for download
                :return: success code with dict as given in brief with list of models which recognized anything
                """
         raise NotImplementedError
