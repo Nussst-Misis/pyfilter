@@ -23,8 +23,8 @@ class AudioProcess:
 
         for language, list_of_results in text.items():
             for sentence in list_of_results:
-                if sentence is not None:
-                    for word in sentence.get("result"):
+                if isinstance(sentence, dict):
+                    for word in sentence.get("result", []):
                         founded_persons = self.ner_module(word.get("word"))
                         if len(founded_persons) != 0:
                             result = models.AudioDetection(
@@ -33,5 +33,6 @@ class AudioProcess:
                             logger.debug(f"Forbidden word is {word.get('word')}")
 
                             audio_list.append(result)
+        logger.info(f"Detected audio: {audio_list}")
         return audio_list
 

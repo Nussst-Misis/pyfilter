@@ -11,7 +11,7 @@ import face_recognition
 import numpy as np
 import cv2
 
-THRESHOLD_DISTANCE = 0.5
+THRESHOLD_DISTANCE = 0.6
 
 
 # Todo: Доделать класс для создания VideoResult
@@ -38,7 +38,7 @@ class DetectFaces:
             )
             if distance > THRESHOLD_DISTANCE:
                 continue
-            result.append(((right, top), (left, bottom)))
+            result.append(((left, bottom), (right, top)))
 
         return result
 
@@ -51,13 +51,13 @@ class DetectFaces:
         current = 0
         while cap.isOpened():
             ret, frame = cap.read()
-            if not ret or current > 1000:
+            if not ret:
                 break
-            frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+            # frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
             frame = frame[:, :, ::-1]
             if current % fps == 0:
                 for face in self.detect_face(frame):
-                    detections.append(VideoDetection(time_start=current / fps, time_end=current / fps + fps, corner_1=face[0], corner_2=face[1]))
+                    detections.append(VideoDetection(time_start=current / fps, time_end=current / fps + 1, corner_1=face[0], corner_2=face[1]))
             current += 1
             logger.info(f"Processed frame {current} of {frames}")
         return detections

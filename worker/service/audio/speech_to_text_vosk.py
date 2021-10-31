@@ -126,7 +126,7 @@ class VoskSpeechToText(SpeechToText):
     def get_full_test(self, text_result: list) -> str:
         text = ""
         for r in text_result:
-            text += r["text"] if r is not None else " " + " "
+            text += r["text"] if isinstance(r, dict) else " " + " "
 
         logger.info("\tVosk thinks you said:")
         logger.info(text)
